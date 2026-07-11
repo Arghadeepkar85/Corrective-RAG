@@ -208,16 +208,6 @@ Rather than making the generator smarter, CRAG makes the **retrieval pipeline sm
 - Embedding Models
 - Large Language Models (LLMs)
 
----
-
-# ⚠️ Note
-
-This repository is **an educational implementation inspired by the CRAG research paper** and is intended to help understand its core ideas.
-
-It is **not the official implementation released by the paper's authors.**
-
----
-
 # 📚 Reference
 
 **Corrective Retrieval-Augmented Generation (CRAG)**
@@ -227,5 +217,3 @@ Shi-Qi Yan, Jia-Chen Gu, Yun Zhu, Zhen-Hua Ling
 https://arxiv.org/abs/2401.15884
 
 ---
-
-## ⭐ If you found this repository useful, consider giving it a star.

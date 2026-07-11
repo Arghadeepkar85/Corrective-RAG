@@ -1,170 +1,235 @@
 # Corrective Retrieval-Augmented Generation (CRAG)
 
-> A hands-on implementation of the core concepts presented in the **Corrective Retrieval-Augmented Generation (CRAG)** research paper using **LangChain** and **LangGraph**.
-
-## 📖 Overview
-
-Retrieval-Augmented Generation (RAG) significantly improves Large Language Models by grounding responses in external knowledge. However, traditional RAG assumes that retrieved documents are always relevant and sufficient.
-
-The CRAG paper challenges this assumption.
-
-Instead of blindly trusting retrieved documents, CRAG introduces a **Retrieval Evaluator** that estimates retrieval quality before generation. When retrieval quality is low, the pipeline performs corrective actions such as knowledge refinement and external web search to improve the final response.
-
-This repository explores these core concepts through an educational implementation.
+> An educational implementation of the core ideas presented in the research paper **"Corrective Retrieval-Augmented Generation (CRAG)"** by Shi-Qi Yan .
 
 ---
 
-## 📚 Research Paper
+## 📖 About
 
-**Corrective Retrieval-Augmented Generation (CRAG)**
+Traditional Retrieval-Augmented Generation (RAG) systems improve Large Language Models (LLMs) by retrieving relevant documents before generating an answer. However, they rely on one strong assumption:
 
-**Authors**
-- Shi-Qi Yan
-- Jia-Chen Gu
-- Yun Zhu
-- Zhen-Hua Ling
+> **The retrieved documents are always relevant and sufficient.**
 
-Paper:
-https://arxiv.org/abs/2401.15884
+In practice, this assumption often fails.
+
+A retriever may return:
+- Irrelevant documents
+- Incomplete information
+- Noisy context
+- Missing evidence required to answer the query
+
+When incorrect or incomplete context is passed to the LLM, even state-of-the-art models can generate inaccurate or hallucinated responses.
+
+The CRAG paper addresses this limitation by introducing a **correction mechanism** before generation, making Retrieval-Augmented Generation significantly more reliable.
 
 ---
 
-# 🎯 Motivation
+# 💡 Key Insight from the Paper
 
-Traditional RAG follows:
+One of the biggest takeaways from CRAG is:
+
+> **Hallucinations in RAG systems are often caused by retrieval failures rather than generation failures.**
+
+Instead of making the language model larger or more powerful, CRAG focuses on improving **the quality of retrieved knowledge** before passing it to the LLM.
+
+This shift in perspective makes the system more robust while requiring only minimal changes to existing RAG pipelines.
+
+---
+
+# 🚀 Why CRAG is Better than Traditional RAG
+
+Traditional RAG follows a simple pipeline:
 
 ```
 User Query
-     │
-     ▼
+      ↓
 Retriever
-     │
-     ▼
+      ↓
 Retrieved Documents
-     │
-     ▼
+      ↓
 LLM
-     │
-     ▼
+      ↓
 Answer
 ```
 
-The problem?
+This pipeline assumes retrieval is always correct.
 
-If retrieval is poor, even a powerful LLM can produce incorrect or hallucinated answers.
-
-CRAG introduces a correction layer before generation.
+CRAG introduces an additional verification layer:
 
 ```
 User Query
-      │
-      ▼
+      ↓
 Retriever
-      │
-      ▼
-Retrieved Documents
-      │
-      ▼
+      ↓
 Retrieval Evaluator
+      ↓
+Good Retrieval? ────────────── No
+      │                         │
+     Yes                        ▼
+      │                 Web Search
+      │                         │
+      ▼                         ▼
+Retrieval Refinement ←──────────┘
       │
- ┌────┴─────┐
- │          │
-Good      Poor
- │          │
- ▼          ▼
-Generate   Web Search
- │          │
- └────┬─────┘
-      ▼
-Knowledge Refinement
       ▼
 LLM
       ▼
 Final Answer
 ```
 
----
-
-# 🚀 Features
-
-- Basic RAG Pipeline
-- Retrieval Evaluation
-- Retrieval Refinement
-- Query Rewriting
-- Web Search Augmentation
-- LangGraph Workflow
-- End-to-End CRAG Pipeline
+Instead of blindly trusting retrieved documents, CRAG verifies and corrects them before generation.
 
 ---
 
-# 📂 Project Structure
+# 📂 Repository Structure
+
+This repository contains educational implementations of the core CRAG concepts.
 
 ```
-.
-├── 1_basic_rag.ipynb
-├── 2_retrieval_refinement.ipynb
-├── 3_retrieval_evaluator.ipynb
-├── 4_web_search_refinement.ipynb
-├── 5_query_rewrite.ipynb
-├── 6_ambiguous.ipynb
-└── README.md
+1_basic_rag.ipynb
 ```
 
+## 1️⃣ Basic RAG
+
+Implements the standard Retrieval-Augmented Generation pipeline.
+
+Workflow:
+
+- Load documents
+- Create embeddings
+- Store vectors
+- Retrieve relevant chunks
+- Generate response using an LLM
+
+This notebook serves as the **baseline** for understanding why CRAG is needed.
+
 ---
 
-# 🧠 Key Learnings
+```
+2_retrieval_refinement.ipynb
+```
 
-While studying the paper and exploring its implementation, I learned that:
+## 2️⃣ Retrieval Refinement
 
-- Hallucinations are often caused by poor retrieval rather than weak language models.
-- Evaluating retrieval quality before generation improves reliability.
-- Better context leads to better responses.
-- External search acts as a useful fallback when internal knowledge is insufficient.
-- Production RAG systems require intelligent orchestration rather than a simple retrieve-and-generate pipeline.
+Retrieved documents often contain:
+
+- Duplicate information
+- Irrelevant sentences
+- Noisy chunks
+
+This notebook demonstrates how retrieved knowledge can be refined before passing it to the language model.
+
+Goal:
+
+- Reduce noise
+- Improve context quality
+- Increase answer reliability
 
 ---
 
-# ⚙️ Tech Stack
+```
+3_retrieval_evaluator.ipynb
+```
+
+## 3️⃣ Retrieval Evaluator
+
+This is the **core contribution of the CRAG paper.**
+
+Instead of assuming retrieved documents are correct, CRAG evaluates their quality.
+
+The evaluator estimates whether the retrieved context is:
+
+- Relevant
+- Complete
+- Reliable
+
+If confidence is high:
+
+```
+Retrieve
+    ↓
+Generate
+```
+
+Otherwise:
+
+```
+Retrieve
+    ↓
+Evaluate
+    ↓
+Correct
+```
+
+This prevents the language model from generating answers using poor-quality retrieval.
+
+---
+
+```
+4_web_search_refinement.ipynb
+```
+
+## 4️⃣ Web Search Fallback
+
+When retrieval quality is insufficient, CRAG performs an additional external search.
+
+Instead of forcing the LLM to answer with limited knowledge, the system retrieves fresh information and combines it with the original context.
+
+Benefits:
+
+- Better coverage
+- More complete answers
+- Reduced hallucinations
+
+---
+
+# 🧠 What I Learned from the Paper
+
+Reading CRAG changed the way I think about Retrieval-Augmented Generation.
+
+Before reading the paper, I assumed improving a RAG system mostly meant:
+
+- Better embeddings
+- Better vector databases
+- Better LLMs
+
+CRAG showed that another equally important factor is:
+
+> **Retrieval Quality**
+
+If the retrieved information is poor, even the strongest LLM will struggle.
+
+Rather than making the generator smarter, CRAG makes the **retrieval pipeline smarter**, leading to more reliable AI systems.
+
+---
+
+# 🛠️ Technologies Used
 
 - Python
 - LangChain
 - LangGraph
-- OpenAI / Gemini
-- FAISS / Vector Database
-- Tavily Search
-- Jupyter Notebook
+- Vector Database
+- Embedding Models
+- Large Language Models (LLMs)
 
 ---
 
-# 📌 Challenges Explored
+# ⚠️ Note
 
-While implementing the core concepts, several practical challenges became evident:
+This repository is **an educational implementation inspired by the CRAG research paper** and is intended to help understand its core ideas.
 
-- Selecting an appropriate retrieval confidence threshold.
-- Balancing retrieval quality with latency.
-- Managing branching workflows using LangGraph.
-- Preserving user intent during query rewriting.
-- Combining vector retrieval with external web search efficiently.
+It is **not the official implementation released by the paper's authors.**
 
 ---
 
-# 📈 Future Improvements
+# 📚 Reference
 
-- Hybrid Search (BM25 + Dense Retrieval)
-- Cross-Encoder Re-ranking
-- Adaptive Retrieval
-- Self-RAG Integration
-- Reflection-based Answer Verification
-- Production Deployment
+**Corrective Retrieval-Augmented Generation (CRAG)**
 
----
+Shi-Qi Yan, Jia-Chen Gu, Yun Zhu, Zhen-Hua Ling
 
-# 🙏 Acknowledgements
-
-This project is an educational implementation inspired by the **Corrective Retrieval-Augmented Generation (CRAG)** research paper.
-
-The implementation is intended to understand the architecture, workflow, and design decisions presented in the paper rather than reproduce the original research implementation.
+https://arxiv.org/abs/2401.15884
 
 ---
 
-## ⭐ If you found this repository useful, consider giving it a star!
+## ⭐ If you found this repository useful, consider giving it a star.

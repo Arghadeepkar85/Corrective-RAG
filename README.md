@@ -1,9 +1,5 @@
 # Corrective Retrieval-Augmented Generation (CRAG)
 
-> An educational implementation of the core ideas presented in the research paper **"Corrective Retrieval-Augmented Generation (CRAG)"** by Shi-Qi Yan .
-
----
-
 ## 📖 About
 
 Traditional Retrieval-Augmented Generation (RAG) systems improve Large Language Models (LLMs) by retrieving relevant documents before generating an answer. However, they rely on one strong assumption:
